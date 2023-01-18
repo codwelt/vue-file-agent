@@ -196,6 +196,27 @@ class UploadHelper {
       // })(fileRecord);
     }
     // return Promise.all(promises);
+    return  new Promise((resolve, reject) => {
+     
+      const responsesUploders:any[] = [];
+      promises.reduce((previus,uploaderPromise) => 
+        previus.then(() => {
+          uploaderPromise.then(response => {
+            responsesUploders.push(response);
+          }).catch(e => {
+            console.log("Error cargado imagen",e);
+          })
+        }),
+        Promise.resolve()
+      ).then(() => {
+        if (failedUploadsCount === promises.length) {
+          // all uploads failed
+          reject(responsesUploders);
+          return;
+        }
+        resolve(responsesUploders);
+      })
+    });
     return new Promise((resolve, reject) => {
       Promise.all(promises).then((responses) => {
         if (failedUploadsCount === promises.length) {
